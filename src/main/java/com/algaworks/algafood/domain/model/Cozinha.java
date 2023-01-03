@@ -1,11 +1,16 @@
 package com.algaworks.algafood.domain.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import lombok.Data;
@@ -30,6 +35,10 @@ public class Cozinha {
 	//@JsonProperty("titulo") // Altera o nome da propriedade da resposta da requisição
 	@Column(nullable = false)
 	private String nome;
+	
+	@JsonIgnore // Aqui é para não serializar o restaurante e entrar em loop infinito
+	@OneToMany(mappedBy = "cozinha")// Aqui uma coinhz pode ter vários restaurantes!!!	
+	private List<Restaurante> restaurantes = new ArrayList<>();
 
 	
 
