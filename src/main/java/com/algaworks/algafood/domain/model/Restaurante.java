@@ -54,8 +54,9 @@ public class Restaurante {
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
 	
-	@JsonIgnore // É para tirar o endereço da implementação no postman, mas no banco de dados continua tendo a
+	// É para tirar o endereço da implementação no postman, mas no banco de dados continua tendo a
 	// a implementação
+	@JsonIgnore 
 	@Embedded// Esta classe é incorporada à classe Restaurante
 	private Endereco endereco;
 	@JsonIgnore
@@ -75,7 +76,7 @@ public class Restaurante {
 	private List<Produto> produtos = new ArrayList<>();
 	
 	
-	//@JsonIgnore // Nesse momento não é intessante mostrar tudo(formas de pagamento)
+	@JsonIgnore // Nesse momento não é intessante mostrar tudo(formas de pagamento)
 	//no Payload, mais a frente vamos ver outra forma de customizar
 	@ManyToMany(fetch = FetchType.EAGER)// Muito restaurantes podem ter muitas formas de pagamento!!!
 	@JoinTable(name = "restaurante_forma_pagamento",
