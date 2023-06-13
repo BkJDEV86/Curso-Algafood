@@ -1,12 +1,11 @@
-package com.algaworks.algafood.controller;
+package com.algaworks.algafood.api.controller;
 
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,16 +16,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.algaworks.algafood.api.assembler.CozinhaInputDisassembler;
+import com.algaworks.algafood.api.assembler.CozinhaModelAssembler;
+import com.algaworks.algafood.api.model.CozinhaModel;
+import com.algaworks.algafood.api.model.input.CozinhaInput;
 import com.algaworks.algafood.domain.model.Cozinha;
+import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
-import com.algaworks.algafood.repository.CozinhaRepository;
 
 @RestController // É um componente Controller do tipo Rest que tem tem um ResponseBody embutido,
 				// que seria
 // uma forma de devolver um corpo na Requisição quando ela é chamada!
 // Quando tem mais de uma coisa declarada é necessário colocar value
-@RequestMapping(value = "/cozinhas", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/cozinhas")
 public class CozinhaController {
+	
+	@Autowired
+	private CozinhaModelAssembler cozinhaModelAssembler;
+
+	@Autowired
+	private CozinhaInputDisassembler cozinhaInputDisassembler;     
 
 	@Autowired
 	private CozinhaRepository cozinhaRepository;
@@ -35,68 +44,37 @@ public class CozinhaController {
 	private CadastroCozinhaService cadastroCozinha;
 
 	@GetMapping
-	public List<Cozinha> listar() {
-		return cozinhaRepository.findAll();
+	public List<CozinhaModel> listar() {
+	    List<Cozinha> todasCozinhas = cozinhaRepository.findAll();
+	    
+	    return cozinhaModelAssembler.toCollectionModel(todasCozinhas);
 	}
 
-	// Abaixo é a mesma coisa que /cozinhas/{cozinhaId}
 	@GetMapping("/{cozinhaId}")
-	public Cozinha buscar(@PathVariable Long cozinhaId) {
-		return cadastroCozinha.buscarOuFalhar(cozinhaId);
-		
-		// Abaixo é outra forma antiga
-		/* Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
-		 * // O Optional evita tomar null exception. E como cozinha é um optional
-		 * chamamos // através do get if (cozinha.isPresent()) { return
-		 * ResponseEntity.ok(cozinha.get()); }
-		 * 
-		 * // os dois abaixo são iguais // return
-		 * ResponseEntity.status(HttpStatus.NOT_FOUND).build(); return
-		 * ResponseEntity.notFound().build();
-		 */
+	public CozinhaModel buscar(@PathVariable Long cozinhaId) {
+	    Cozinha cozinha = cadastroCozinha.buscarOuFalhar(cozinhaId);
+	    
+	    return cozinhaModelAssembler.toModel(cozinha);
 	}
-
+	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Cozinha adicionar(@RequestBody Cozinha cozinha) {
-		return cadastroCozinha.salvar(cozinha);
+	public CozinhaModel adicionar(@RequestBody @Valid CozinhaInput cozinhaInput) {
+	    Cozinha cozinha = cozinhaInputDisassembler.toDomainObject(cozinhaInput);
+	    cozinha = cadastroCozinha.salvar(cozinha);
+	    
+	    return cozinhaModelAssembler.toModel(cozinha);
 	}
 
 	@PutMapping("/{cozinhaId}")
-	// o padrão retornado é 200 por isso não colocamos @ResponseStatus
-	public Cozinha atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
-		
-        Cozinha cozinhaAtual = cadastroCozinha.buscarOuFalhar(cozinhaId);
-		
-		BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
-		
-		return cadastroCozinha.salvar(cozinhaAtual);
-
-		//Optional<Cozinha> cozinhaAtual = cozinhaRepository.findById(cozinhaId);
-
-		/*if (cozinhaAtual.isPresent()) {
-
-			// Cozinha é o que recebemos no corpo da requisição e cozinhaAtual é o que está
-			// persistido no banco de dados!
-			// O que temos que fazer é copiar os valores que estão no corpo da requisição
-			// (cozinha) para
-			// dentro do banco cozinhaAtual.
-			// cozinhaAtual.setNome(cozinha.getnome());
-			// Aqui copiando a cozinha para a cozinhaatual dentro de optional
-			BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");// Aqui terceiro parâmetro é o que tem que ser
-																		// ignorado
-			// como estou copiando de um que o id é nulo para outro que o id é não nulo,
-			// causará erro, logo temos que ignorar
-			// o id
-
-			Cozinha cozinhaSalva = cadastroCozinha.salvar(cozinhaAtual.get());
-			return ResponseEntity.ok(cozinhaSalva);*/
-	//	}
-
-	//	return ResponseEntity.notFound().build();
-
+	public CozinhaModel atualizar(@PathVariable Long cozinhaId,
+	        @RequestBody @Valid CozinhaInput cozinhaInput) {
+	    Cozinha cozinhaAtual = cadastroCozinha.buscarOuFalhar(cozinhaId);
+	    cozinhaInputDisassembler.copyToDomainObject(cozinhaInput, cozinhaAtual);
+	    cozinhaAtual = cadastroCozinha.salvar(cozinhaAtual);
+	    
+	    return cozinhaModelAssembler.toModel(cozinhaAtual);
 	}
-
 	
 	/*
 	 * @DeleteMapping("/{cozinhaId}") // Não é interessante tratar exceções no

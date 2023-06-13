@@ -7,6 +7,7 @@ public enum ProblemType {
 	
 	// Como foi criado um constrtutor é obrigatório passar parâmetros abaixo;
 	// Aqui abaixo eu passei o caminho e o título como parâmetros.
+	DADOS_INVALIDOS("/dados-invalidos", "Dados inválidos"),
 	PARAMETRO_INVALIDO("/parametro-invalido", "Parâmetro inválido"),
 	ERRO_DE_SISTEMA("/erro-de-sistema", "Erro de sistema"),
 	MENSAGEM_INCOMPREENSIVEL("/mensagem-incompreensível", "Mensagem incompreensível"),

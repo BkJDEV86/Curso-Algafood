@@ -2,19 +2,18 @@ package com.algaworks.algafood.domain.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.RestauranteNaoEncontradoException;
+import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Restaurante;
-import com.algaworks.algafood.repository.CozinhaRepository;
-import com.algaworks.algafood.repository.RestauranteRepository;
+import com.algaworks.algafood.domain.repository.RestauranteRepository;
 
 @Service
 public class CadastroRestauranteService {
 	
-	private static final String MSG_RESTAURANTE_NAO_ENCONTRADO 
-    = "Não existe um cadastro de restaurante com código %d";
+	
 	
 	@Autowired
 	private RestauranteRepository restauranteRepository;
@@ -23,20 +22,45 @@ public class CadastroRestauranteService {
 	@Autowired
 	private CadastroCozinhaService cadastroCozinha;
 	
+	
+	@Autowired
+	private CadastroCidadeService cadastroCidade;
+	
 	/*
 	 * Assim como no caso de CadastroCidadeService, vamos utilizar o método de busca
 	 * ou falha do CadastroCozinhaService, ao invés de usarmos diretamente o
 	 * CozinhaRepository
 	 */
 	
+	//  @Transactional é algo de fato necessário, pois esta anotação abstrai todo o trabalho que teríamos de abrir uma transação,
+	// gerenciá-la e encerrar a mesma.
+	@Transactional
 	public Restaurante salvar(Restaurante restaurante) {
 	    Long cozinhaId = restaurante.getCozinha().getId();
+	    Long cidadeId = restaurante.getEndereco().getCidade().getId();
 	    
 	    Cozinha cozinha = cadastroCozinha.buscarOuFalhar(cozinhaId);
+	    Cidade cidade = cadastroCidade.buscarOuFalhar(cidadeId);
 	    
 	    restaurante.setCozinha(cozinha);
+	    restaurante.getEndereco().setCidade(cidade);
 	    
 	    return restauranteRepository.save(restaurante);
+	}
+	
+	
+	@Transactional
+	public void ativar(Long restauranteId) {
+		Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
+		
+		restauranteAtual.ativar();
+	}
+	
+	@Transactional
+	public void inativar(Long restauranteId) {
+		Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
+		
+		restauranteAtual.inativar();
 	}
 	
 	/*

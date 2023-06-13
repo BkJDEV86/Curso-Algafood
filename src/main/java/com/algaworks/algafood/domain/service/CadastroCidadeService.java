@@ -4,14 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.model.Estado;
-import com.algaworks.algafood.repository.CidadeRepository;
-import com.algaworks.algafood.repository.EstadoRepository;
+import com.algaworks.algafood.domain.repository.CidadeRepository;
 
 @Service
 public class CadastroCidadeService {
@@ -32,6 +31,7 @@ private static final String MSG_CIDADE_NAO_ENCONTRADA
 	// No método salvar, fazíamos a chamada diretamente ao EstadoRepository, vamos refatorar para usar o CadastroEstadoService 
 	// e assim nos beneficiar das validações que criamos lá.
 	
+	@Transactional
 	public Cidade salvar(Cidade cidade) {
 	    Long estadoId = cidade.getEstado().getId();
 
@@ -55,9 +55,12 @@ private static final String MSG_CIDADE_NAO_ENCONTRADA
 	 * return cidadeRepository.save(cidade); }
 	 */
 	
+	@Transactional
 	public void excluir(Long cidadeId) {
 		try {
 			cidadeRepository.deleteById(cidadeId);
+			cidadeRepository.flush();
+			
 			
 		} catch (EmptyResultDataAccessException e) {
 			throw new CidadeNaoEncontradaException(cidadeId);

@@ -17,8 +17,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import com.algaworks.algafood.domain.model.Restaurante;
-import com.algaworks.algafood.repository.RestauranteRepository;
-import com.algaworks.algafood.repository.RestauranteRepositoryQueries;
+import com.algaworks.algafood.domain.repository.RestauranteRepository;
+import com.algaworks.algafood.domain.repository.RestauranteRepositoryQueries;
 
 @Repository
 public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
@@ -26,8 +26,7 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 	@PersistenceContext
 	private EntityManager manager;
 	
-	@Autowired @Lazy //Aqui temos que injetar restauranterepository para termos acesso ao método findall
-	// O lazy é para não ter problema de exceção pela injeção , ele irá carregar de acordo com a necessidade!
+	@Autowired @Lazy
 	private RestauranteRepository restauranteRepository;
 	
 	@Override
@@ -52,14 +51,12 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 			predicates.add(builder.lessThanOrEqualTo(root.get("taxaFrete"), taxaFreteFinal));
 		}
 		
-		// Aqui eu tenho que passar para um Arraylist por isso a conversão...
-		// E a forma correta seria , to array instanciando um predicado passando 0 ou outro numero como argumento!
 		criteria.where(predicates.toArray(new Predicate[0]));
 		
 		var query = manager.createQuery(criteria);
 		return query.getResultList();
 	}
-	
+
 	@Override
 	public List<Restaurante> findComFreteGratis(String nome) {
 		return restauranteRepository.findAll(comFreteGratis()

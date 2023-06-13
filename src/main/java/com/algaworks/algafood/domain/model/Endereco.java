@@ -14,6 +14,7 @@ import lombok.Data;
 // esta entidade
 public class Endereco {
 	
+	
 	@Column(name = "endereco_cep")
 	private String cep;
 	
