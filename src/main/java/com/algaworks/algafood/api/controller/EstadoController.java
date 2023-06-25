@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +44,7 @@ public class EstadoController {
 	@Autowired
 	private CadastroEstadoService cadastroEstado;
 	
-	@GetMapping
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<EstadoModel> listar() {
 		List<Estado> todosEstados = estadoRepository.findAll();
 	    
@@ -59,7 +59,7 @@ public class EstadoController {
 	 * assim a validação é garantida.
 	 */
 	
-	@GetMapping("/{estadoId}")
+	@GetMapping(value = "/{estadoId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public EstadoModel buscar(@PathVariable Long estadoId) {
 		Estado estado = cadastroEstado.buscarOuFalhar(estadoId);
 	    
@@ -76,7 +76,7 @@ public class EstadoController {
 	 * return ResponseEntity.notFound().build(); }
 	 */
 	
-	@PostMapping
+	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
 	public EstadoModel adicionar(@RequestBody @Valid EstadoInput estadoInput) {
 	    Estado estado = estadoInputDisassembler.toDomainObject(estadoInput);
@@ -86,7 +86,7 @@ public class EstadoController {
 	    return estadoModelAssembler.toModel(estado);
 	}
 	
-	@PutMapping("/{estadoId}")
+	@PutMapping(value = "/{estadoId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public EstadoModel atualizar(@PathVariable Long estadoId,
 	        @RequestBody @Valid EstadoInput estadoInput) {
 	    Estado estadoAtual = cadastroEstado.buscarOuFalhar(estadoId);

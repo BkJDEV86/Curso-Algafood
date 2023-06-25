@@ -21,17 +21,21 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
+import com.algaworks.algafood.domain.event.PedidoCanceladoEvent;
+import com.algaworks.algafood.domain.event.PedidoConfirmadoEvent;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.enumerations.StatusPedido;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Data//  callSuper = false é para não chamar o método da classe Pai.
+
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
-public class Pedido {
+public class Pedido  extends AbstractAggregateRoot<Pedido>{
 
     @EqualsAndHashCode.Include
     @Id
@@ -86,6 +90,8 @@ public class Pedido {
     public void confirmar() {
 		setStatus(StatusPedido.CONFIRMADO);
 		setDataConfirmacao(OffsetDateTime.now());
+		// Abaixo passo o this pois estou passando a instância atual do Pedido confirmado.
+		registerEvent(new PedidoConfirmadoEvent(this));
 	}
 	
 	public void entregar() {
@@ -94,8 +100,10 @@ public class Pedido {
 	}
 	
 	public void cancelar() {
-		setStatus(StatusPedido.CANCELADO);
-		setDataCancelamento(OffsetDateTime.now());
+	    setStatus(StatusPedido.CANCELADO);
+	    setDataCancelamento(OffsetDateTime.now());
+	    
+	    registerEvent(new PedidoCanceladoEvent(this));
 	}
 	
 	private void setStatus(StatusPedido novoStatus) {

@@ -1,4 +1,4 @@
-package com.algaworks.algafood.api.exceptionthandler;
+package com.algaworks.algafood.api.exceptionhandler;
 
 import lombok.Getter;
 
