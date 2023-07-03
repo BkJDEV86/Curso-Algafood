@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class TomcatCustomizer implements WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
 
-    @Override// Essa classe customiza as entradas de parâmetros na Url aceitando cliente[id,nome] por exemplo
+    @SuppressWarnings("deprecation")
+	@Override
     public void customize(TomcatServletWebServerFactory factory) {
         factory.addConnectorCustomizers(connector -> connector.setAttribute("relaxedQueryChars", "[]"));
     }
