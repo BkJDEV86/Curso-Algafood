@@ -6,7 +6,8 @@ import java.time.OffsetDateTime;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
-import com.algaworks.algafood.api.model.UsuarioModel;
+import com.algaworks.algafood.api.v1.model.RestauranteApenasNomeModel;
+import com.algaworks.algafood.api.v1.model.UsuarioModel;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -36,7 +37,9 @@ public class PedidoResumoModel extends RepresentationModel<PedidoResumoModel> {
 	@ApiModelProperty(example = "2019-12-01T20:34:04Z")
 	private OffsetDateTime dataCriacao;
 	
-	private RestauranteResumoModel restaurante;
+	
 	private UsuarioModel cliente;
+	
+	private RestauranteApenasNomeModel restaurante;
 	
 }
